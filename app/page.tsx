@@ -1,95 +1,160 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  InputAdornment,
+  OutlinedInput,
+  Typography,
+} from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Toolbar from '@mui/material/Toolbar';
+import Link from 'next/link';
+import * as React from 'react';
 
-export default function Home() {
+interface CustomButtonProps {
+  onClick: () => void;
+  children: React.ReactNode;
+}
+
+interface CustomInputProps {
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+  endAdornment: string;
+  min: number; // Přidání minimální hodnoty pro validaci
+}
+
+// Custom AppBar component
+function CustomAppBar() {
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          />
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1 }}
+            style={{ cursor: 'pointer' }}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+            MBI Calculator
+          </Typography>
+          <Button>
+            <Link href={'/about'}>About</Link>
+          </Button>
+          <Button>
+            <Link href={'/login'}>Login</Link>
+          </Button>
+        </Toolbar>
+      </AppBar>
+    </Box>
+  );
+}
+
+// Custom Button component
+function CustomButton({ onClick, children }: CustomButtonProps) {
+  return (
+    <Button
+      variant="contained"
+      color="primary"
+      style={{ marginBottom: '20px' }}
+      onClick={onClick}
+    >
+      {children}
+    </Button>
+  );
+}
+
+// Custom Input component
+function CustomInput({
+  value,
+  onChange,
+  label,
+  endAdornment,
+  min,
+}: CustomInputProps) {
+  return (
+    <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+      <OutlinedInput
+        id={`outlined-adornment-${label}`}
+        endAdornment={
+          <InputAdornment position="end">{endAdornment}</InputAdornment>
+        }
+        aria-describedby={`outlined-${label}-helper-text`}
+        inputProps={{
+          'aria-label': label,
+          min: min, // Nastavení minimální hodnoty pro validaci
+        }}
+        style={{ background: 'grey' }}
+        value={value}
+        onChange={onChange}
+      />
+      <FormHelperText id={`outlined-${label}-helper-text`}>
+        {label}
+      </FormHelperText>
+    </FormControl>
+  );
+}
+
+// eslint-disable-next-line import/no-default-export
+export default function Calculate() {
+  const [weight, setWeight] = React.useState('');
+  const [height, setHeight] = React.useState('');
+  // eslint-disable-next-line unicorn/no-null
+  const [bmiResult, setBmiResult] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setWeight('');
+    setHeight('');
+    // eslint-disable-next-line unicorn/no-null
+    setBmiResult(null);
+  }, []);
+
+  const calculateBMI = () => {
+    const weightInKg = Number.parseFloat(weight);
+    const heightInCm = Number.parseFloat(height) / 100;
+    if (weightInKg > 0 && heightInCm > 0) {
+      const bmi = weightInKg / (heightInCm * heightInCm);
+      setBmiResult(bmi.toFixed(2));
+    } else {
+      // eslint-disable-next-line unicorn/no-null
+      setBmiResult(null);
+    }
+  };
+
+  return (
+    <div className="container">
+      <div id="Navbar">
+        <CustomAppBar />
       </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <CustomInput
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        label="Weight"
+        endAdornment="Kg"
+        min={10} // Nastavení minimální hodnoty pro váhu na 10
+      />
+      <CustomInput
+        value={height}
+        onChange={(e) => setHeight(e.target.value)}
+        label="Height"
+        endAdornment="Cm"
+        min={50} // Nastavení minimální hodnoty pro výšku na 50
+      />
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+      <CustomButton onClick={calculateBMI}>Calculate</CustomButton>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      {bmiResult !== null && <p id="BMI-result">BMI result: {bmiResult}</p>}
+    </div>
   );
 }
